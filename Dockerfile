@@ -1,5 +1,5 @@
 Dockerfile example:
-FROM docker.io/centos
+FROM ubuntu
 MAINTAINER Devops Engineer
 RUN yum update && yum -y install httpd
 RUN mkdir -p /data/myscript
