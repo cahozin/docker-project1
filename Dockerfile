@@ -1,5 +1,5 @@
 # Base image
-FROM ubuntu
+FROM alpine
 
 # Install httpd
 RUN dnf -y install httpd && \
