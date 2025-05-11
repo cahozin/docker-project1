@@ -1,18 +1,19 @@
-# Base image
-FROM alpine
+FROM registry.access.redhat.com/ubi8/ubi:8.1
 
-# Install httpd
-RUN dnf -y install httpd && \
-    dnf clean all
+RUN yum --disableplugin=subscription-manager -y module enable php:7.3 \
+  && yum --disableplugin=subscription-manager -y install httpd php \
+  && yum --disableplugin=subscription-manager clean all
 
-# Copy custom index.html (optional)
-COPY index.html /var/www/html/index.html
+ADD index.php /var/www/html
 
-#working directory
-workdir /var/www/html/
+RUN sed -i 's/Listen 80/Listen 8080/' /etc/httpd/conf/httpd.conf \
+  && sed -i 's/listen.acl_users = apache,nginx/listen.acl_users =/' /etc/php-fpm.d/www.conf \
+  && mkdir /run/php-fpm \
+  && chgrp -R 0 /var/log/httpd /var/run/httpd /run/php-fpm \
+  && chmod -R g=u /var/log/httpd /var/run/httpd /run/php-fpm
 
-# Expose Apache's default port
-EXPOSE 80
+EXPOSE 8080
+USER 1001
+CMD php-fpm & httpd -D FOREGROUND
 
-# Start httpd in foreground
-CMD ["/usr/sbin/httpd", "-DFOREGROUND"]
+
